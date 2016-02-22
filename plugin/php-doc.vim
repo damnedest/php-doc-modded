@@ -358,6 +358,7 @@ func! PhpDocFunc()
     let l:static = g:pdv_cfg_php4always == 1 ? matchstr(l:modifier, g:pdv_re_static) : ""
 	let l:abstract = g:pdv_cfg_php4always == 1 ? matchstr(l:modifier, g:pdv_re_abstract) : ""
 	let l:final = g:pdv_cfg_php4always == 1 ? matchstr(l:modifier, g:pdv_re_final) : ""
+    let l:has_params = 0
 
     exe "norm! " . commentline . "G$"
 
@@ -372,6 +373,7 @@ func! PhpDocFunc()
     exe l:txtBOL . g:pdv_cfg_CommentBlank . g:pdv_cfg_EOL
 
 	while (l:parameters != ",") && (l:parameters != "")
+        let l:has_params = 1
 		" Save 1st parameter
 		let _p = substitute (l:parameters, '\([^,]*\) *, *\(.*\)', '\1', "")
 		" Remove this one from list
@@ -405,6 +407,9 @@ func! PhpDocFunc()
     "if l:scope != ""
     "	exe l:txtBOL . g:pdv_cfg_Commentn . "@access " . l:scope . g:pdv_cfg_EOL
     "endif
+    if l:has_params != ""
+        exe l:txtBOL . g:pdv_cfg_CommentBlank . g:pdv_cfg_EOL
+    endif
 	if l:funcname != "Constructor"
 		exe l:txtBOL . g:pdv_cfg_Commentn . "@return " . g:pdv_cfg_ReturnVal . g:pdv_cfg_EOL
 	endif
@@ -538,6 +543,8 @@ func! PhpDocClass()
 	let l:abstract = g:pdv_cfg_php4always == 1 ? matchstr(l:modifier, g:pdv_re_abstract) : ""
 	let l:final = g:pdv_cfg_php4always == 1 ?  matchstr(l:modifier, g:pdv_re_final) : ""
 
+    let l:have_uses = 0
+
     exe "norm! " . commentline . "G$"
 
     " Local indent
@@ -547,10 +554,12 @@ func! PhpDocClass()
 	exe l:txtBOL . g:pdv_cfg_Comment1 . l:classname . g:pdv_cfg_EOL
     exe l:txtBOL . g:pdv_cfg_CommentBlank . g:pdv_cfg_EOL
     if l:extends != "" && l:extends != "implements"
+        let l:have_uses = 1
     	exe l:txtBOL . g:pdv_cfg_Commentn . "@uses " . l:extends . g:pdv_cfg_EOL
     endif
 
 	while (l:interfaces != ",") && (l:interfaces != "")
+        let l:have_uses = 1
 		" Save 1st parameter
 		let interface = substitute (l:interfaces, '\([^, ]*\) *, *\(.*\)', '\1', "")
 		" Remove this one from list
@@ -569,6 +578,9 @@ func! PhpDocClass()
     endif
     if g:pdv_cfg_Version != ""
 	    exe l:txtBOL . g:pdv_cfg_Commentn . "@version " . g:pdv_cfg_Version . g:pdv_cfg_EOL
+    endif
+    if l:have_uses == 1
+        exe l:txtBOL . g:pdv_cfg_CommentBlank . g:pdv_cfg_EOL . l:interfaces . l:extends
     endif
     if g:pdv_cfg_Copyright != ""
 	    exe l:txtBOL . g:pdv_cfg_Commentn . "@copyright " . g:pdv_cfg_Copyright . g:pdv_cfg_EOL
