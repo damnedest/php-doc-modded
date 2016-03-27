@@ -96,12 +96,6 @@ if !exists('g:pdv_cfg_ClassCommentEnd') | let g:pdv_cfg_ClassCommentEnd = " // E
 
 " Default values
 if !exists('g:pdv_cfg_Type') | let g:pdv_cfg_Type = "mixed" | endif
-if !exists('g:pdv_cfg_Package') | let g:pdv_cfg_Package = "" | endif
-if !exists('g:pdv_cfg_Version') | let g:pdv_cfg_Version = "$id$" | endif
-if !exists('g:pdv_cfg_Author') | let g:pdv_cfg_Author = "Trevor Suarez <rican7@gmail.com>" | endif
-if !exists('g:pdv_cfg_Copyright') | let g:pdv_cfg_Copyright = strftime('%Y') . " Blennd" | endif
-if !exists('g:pdv_cfg_License') | let g:pdv_cfg_License = "PHP Version 5.4 {@link http://www.php.net/license/}" | endif
-
 if !exists('g:pdv_cfg_ReturnVal') | let g:pdv_cfg_ReturnVal = "void" | endif
 
 " Wether to create @uses tags for implementation of interfaces and inheritance
@@ -118,7 +112,7 @@ if !exists('g:pdv_cfg_autoEndClass') | let g:pdv_cfg_autoEndClass = 1 | endif
 if !exists('g:pdv_cfg_paste') | let g:pdv_cfg_paste = 1 | endif
 
 " Wether for PHP5 code PHP4 tags should be set, like @access,... (1|0)?
-if !exists('g:pdv_cfg_php4always') | let g:pdv_cfg_php4always = 1 | endif
+if !exists('g:pdv_cfg_php4always') | let g:pdv_cfg_php4always = 0 | endif
 
 " Wether to guess scopes after PEAR coding standards:
 " $_foo/_bar() == <private|protected> (1|0)?
@@ -368,8 +362,7 @@ func! PhpDocFunc()
         " exec l:txtBOL . "// " . l:scope ." ".  funcname . "(" . l:params . ") {{" . "{ " . g:pdv_cfg_EOL
 
     exe l:txtBOL . g:pdv_cfg_CommentHead . g:pdv_cfg_EOL
-        " added folding
-        exe l:txtBOL . g:pdv_cfg_Comment1 . funcname . g:pdv_cfg_EOL
+    exe l:txtBOL . g:pdv_cfg_Comment1 . funcname . g:pdv_cfg_EOL
     exe l:txtBOL . g:pdv_cfg_CommentBlank . g:pdv_cfg_EOL
 
     while (l:parameters != ",") && (l:parameters != "")
@@ -458,13 +451,7 @@ func! PhpDocVar()
     exe l:txtBOL . g:pdv_cfg_CommentHead . g:pdv_cfg_EOL
     exe l:txtBOL . g:pdv_cfg_Comment1 . l:varname . g:pdv_cfg_EOL
     exe l:txtBOL . g:pdv_cfg_CommentBlank . g:pdv_cfg_EOL
-    if l:static != ""
-        exe l:txtBOL . g:pdv_cfg_Commentn . "@static" . g:pdv_cfg_EOL
-    endif
     exe l:txtBOL . g:pdv_cfg_Commentn . "@var " . l:type . g:pdv_cfg_EOL
-    "if l:scope != ""
-    "    exe l:txtBOL . g:pdv_cfg_Commentn . "@access " . l:scope . g:pdv_cfg_EOL
-    "endif
 
     " Close the comment block.
     exe l:txtBOL . g:pdv_cfg_CommentTail . g:pdv_cfg_EOL
@@ -543,8 +530,6 @@ func! PhpDocClass()
     let l:abstract = g:pdv_cfg_php4always == 1 ? matchstr(l:modifier, g:pdv_re_abstract) : ""
     let l:final = g:pdv_cfg_php4always == 1 ?  matchstr(l:modifier, g:pdv_re_final) : ""
 
-    let l:have_uses = 0
-
     exe "norm! " . commentline . "G$"
 
     " Local indent
@@ -552,45 +537,6 @@ func! PhpDocClass()
 
     exe l:txtBOL . g:pdv_cfg_CommentHead . g:pdv_cfg_EOL
     exe l:txtBOL . g:pdv_cfg_Comment1 . l:classname . g:pdv_cfg_EOL
-    exe l:txtBOL . g:pdv_cfg_CommentBlank . g:pdv_cfg_EOL
-    if l:extends != "" && l:extends != "implements"
-        let l:have_uses = 1
-        exe l:txtBOL . g:pdv_cfg_Commentn . "@uses " . l:extends . g:pdv_cfg_EOL
-    endif
-
-    while (l:interfaces != ",") && (l:interfaces != "")
-        let l:have_uses = 1
-        " Save 1st parameter
-        let interface = substitute (l:interfaces, '\([^, ]*\) *, *\(.*\)', '\1', "")
-        " Remove this one from list
-        let l:interfaces = substitute (l:interfaces, '\([^, ]*\) *, *\(.*\)', '\2', "")
-        exe l:txtBOL . g:pdv_cfg_Commentn . "@uses " . l:interface . g:pdv_cfg_EOL
-    endwhile
-
-    if l:abstract != ""
-        exe l:txtBOL . g:pdv_cfg_Commentn . "@abstract" . g:pdv_cfg_EOL
-    endif
-    if l:final != ""
-        exe l:txtBOL . g:pdv_cfg_Commentn . "@final" . g:pdv_cfg_EOL
-    endif
-    if g:pdv_cfg_Package != ""
-        exe l:txtBOL . g:pdv_cfg_Commentn . "@package " . g:pdv_cfg_Package . g:pdv_cfg_EOL
-    endif
-    if g:pdv_cfg_Version != ""
-        exe l:txtBOL . g:pdv_cfg_Commentn . "@version " . g:pdv_cfg_Version . g:pdv_cfg_EOL
-    endif
-    if l:have_uses == 1
-        exe l:txtBOL . g:pdv_cfg_CommentBlank . g:pdv_cfg_EOL . l:interfaces . l:extends
-    endif
-    if g:pdv_cfg_Copyright != ""
-        exe l:txtBOL . g:pdv_cfg_Commentn . "@copyright " . g:pdv_cfg_Copyright . g:pdv_cfg_EOL
-    endif
-    if g:pdv_cfg_Author != ""
-        exe l:txtBOL . g:pdv_cfg_Commentn . "@author " . g:pdv_cfg_Author . g:pdv_cfg_EOL
-    endif
-    if g:pdv_cfg_License != ""
-        exe l:txtBOL . g:pdv_cfg_Commentn . "@license " . g:pdv_cfg_License . g:pdv_cfg_EOL
-    endif
 
     " Close the comment block.
     exe l:txtBOL . g:pdv_cfg_CommentTail . g:pdv_cfg_EOL
