@@ -388,18 +388,6 @@ func! PhpDocFunc()
         exe l:txtBOL . g:pdv_cfg_Commentn . "@param" . l:paramtype . " $" . l:paramname . "" . g:pdv_cfg_EOL
     endwhile
 
-    if l:static != ""
-        exe l:txtBOL . g:pdv_cfg_Commentn . "@static" . g:pdv_cfg_EOL
-    endif
-    if l:abstract != ""
-        exe l:txtBOL . g:pdv_cfg_Commentn . "@abstract" . g:pdv_cfg_EOL
-    endif
-    if l:final != ""
-        exe l:txtBOL . g:pdv_cfg_Commentn . "@final" . g:pdv_cfg_EOL
-    endif
-    "if l:scope != ""
-    "   exe l:txtBOL . g:pdv_cfg_Commentn . "@access " . l:scope . g:pdv_cfg_EOL
-    "endif
     if l:has_params != ""
         exe l:txtBOL . g:pdv_cfg_CommentBlank . g:pdv_cfg_EOL
     endif
@@ -437,10 +425,6 @@ func! PhpDocVar()
     let l:varname = substitute (l:name, g:pdv_re_attribute, '\3', "g")
     let l:varname = PhpDocDescription(l:varname)
     let l:default = substitute (l:name, g:pdv_re_attribute, '\4', "g")
-    let l:scope = PhpDocScope(l:modifier, l:varname)
-
-    let l:static = g:pdv_cfg_php4always == 1 ? matchstr(l:modifier, g:pdv_re_static) : ""
-
     let l:type = PhpDocType(l:default)
 
     exe "norm! " . commentline . "G$"
